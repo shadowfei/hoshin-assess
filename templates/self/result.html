@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}评估完成{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+<div class="card mb-4 border-success"><div class="card-header bg-success text-white">✅ 评估完成，感谢参与！</div><div class="card-body text-center">
+<h4>{{ assessment.company_name }}</h4>
+<p>评估日期: {{ assessment.created_at.strftime('%Y年%m月%d日') }}</p>
+<div class="radar-container mb-3"><canvas id="resultRadar" width="300" height="300"></canvas></div>
+<div class="alert alert-info"><strong>定位: {{ result.quadrant_label }}</strong><br>{{ result.quadrant_advice[:100] }}...</div>
+<p class="text-muted">*详细诊断报告将由您的咨询师在后续辅导中提供。</p>
+</div></div></div></div>
+<script>
+new Chart(document.getElementById('resultRadar').getContext('2d'), {
+type:'radar', data:{labels:['战略预备度','领导力文化','流程管理','执行对齐'],
+datasets:[{label:'{{ assessment.company_name }}',data:[{{ result.dim_avgs[1] }},{{ result.dim_avgs[2] }},{{ result.dim_avgs[3] }},{{ result.dim_avgs[4] }}],
+backgroundColor:'rgba(40,167,69,0.2)',borderColor:'rgba(40,167,69,1)'}]},
+options:{scales:{r:{min:0,max:9,ticks:{stepSize:3}}},plugins:{legend:{display:false}}}});
+</script>
+{% endblock %}

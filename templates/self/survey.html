@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}企业自评问卷{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+<div class="card mb-4">
+<div class="card-header bg-primary text-white">📝 {{ assessment.company_name }} — 方针管理预备度评估</div>
+<div class="card-body">
+<p class="text-muted mb-3">
+    <strong>评分规则：</strong>
+    <span class="badge bg-danger">1分-初始级</span> 完全缺失
+    <span class="badge bg-warning text-dark">3分-规划级</span> 有意识但零散
+    <span class="badge bg-info text-dark">6分-规范级</span> 已系统化
+    <span class="badge bg-success">9分-优化级</span> 已融入文化
+</p>
+<form method="post" action="/self/{{ assessment.id }}">
+{% set dim_cn = ["","一、战略预备度与外部环境","二、领导力与组织文化","三、流程管理与改善能力","四、执行、对齐与数字化基础"] %}
+{% set dim_en = ["","Strategic Readiness & External Environment","Leadership & Culture","Process & Improvement Capability","Execution, Alignment & Digital Foundation"] %}
+{% for dim, items in dimensions %}
+<div class="card mb-3"><div class="card-header bg-secondary text-white">{{ dim_cn[dim] }} <small class="text-white-50">{{ dim_en[dim] }}</small></div><div class="card-body">
+{% for item in items %}
+<div class="mb-3 pb-2 border-bottom">
+<p class="mb-1"><strong>{{ item.question_no }}.</strong> {{ item.question_text }}<br><small class="text-muted">（参考：{{ item.reference_text }}）</small></p>
+<div class="btn-group" role="group">
+{% for v in [1,3,6,9] %}
+<input type="radio" class="btn-check" name="score_{{ item.id }}" value="{{ v }}" id="s{{ item.id }}_{{ v }}" {% if item.score==v %}checked{% endif %} required>
+<label class="btn btn-outline-secondary" for="s{{ item.id }}_{{ v }}">{{ v }}分</label>
+{% endfor %}
+</div></div>{% endfor %}
+</div></div>{% endfor %}
+<button type="submit" class="btn btn-primary btn-lg w-100">提交评估</button>
+</form></div></div></div></div>
+{% endblock %}

@@ -1,0 +1,5 @@
+body { background: #f5f7fa; }
+.card { border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.card-header { border-radius: 12px 12px 0 0 !important; font-weight: 600; }
+.score-btn-group .btn { min-width: 60px; }
+.radar-container { max-width: 500px; margin: 0 auto; }

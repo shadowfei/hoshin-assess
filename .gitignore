@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+hoshin.db
+uploads/*
+!uploads/.gitkeep
+.env

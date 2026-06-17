@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}评估报告 - {{ assessment.company_name }}{% endblock %}
+{% block content %}
+<style>
+.quadrant-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; max-width:360px; margin:0 auto; }
+.quadrant-cell { padding:10px; border-radius:8px; text-align:center; font-size:0.85rem; border:3px solid transparent; }
+.quadrant-cell.active { border-color:#333; box-shadow:0 0 12px rgba(0,0,0,0.15); font-weight:700; }
+.quadrant-cell .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; }
+</style>
+
+<div class="row"><div class="col-lg-8 mx-auto">
+
+<!-- 企业档案 Company Profile -->
+<div class="card mb-4"><div class="card-header bg-primary text-white">📋 企业档案 <small>Company Profile</small></div><div class="card-body">
+<div class="row"><div class="col-md-6"><p><strong>{{ assessment.company_name }}</strong>{% if assessment.year_established %}｜成立:{{ assessment.year_established }}年{% endif %}{% if assessment.industry %}｜{{ assessment.industry }}{% endif %}</p></div>
+<div class="col-md-6 text-md-end">{% if assessment.annual_revenue %}营收:{{ assessment.annual_revenue }}万｜{% endif %}{% if assessment.employee_count %}员工:{{ assessment.employee_count }}人{% endif %}{% if assessment.manager_count %}｜管理:{{ assessment.manager_count }}人{% endif %}</div></div>
+{% if assessment.company_vision %}<p class="mb-0"><small>愿景 Vision：{{ assessment.company_vision }}</small></p>{% endif %}
+{% if assessment.company_mission %}<p class="mb-0"><small>使命 Mission：{{ assessment.company_mission }}</small></p>{% endif %}
+<p class="mt-2 mb-0 text-muted">评估人 Assessor:{{ assessment.assessor or '—' }}｜日期 Date:{{ assessment.created_at.strftime('%Y-%m-%d') }}</p>
+</div></div>
+
+<!-- 雷达图 Radar Chart + 象限图 Quadrant -->
+<div class="row mb-4"><div class="col-md-7">
+<div class="card h-100"><div class="card-header">📊 四维度评估 <small>Radar Chart</small></div><div class="card-body"><div class="radar-container"><canvas id="radarChart"></canvas></div></div></div>
+</div><div class="col-md-5">
+<div class="card h-100"><div class="card-header">🎯 四象限定位 <small>Strategic Quadrant</small></div><div class="card-body">
+<div class="text-center mb-2"><small>渴望度 Desire: <strong>{{ result.desire_score }}</strong> ／ 能力值 Capacity: <strong>{{ result.capacity_score }}</strong></small></div>
+<div class="quadrant-grid">
+    <div class="quadrant-cell bg-warning-subtle {% if result.quadrant_key=='D' %}active{% endif %}">
+        <div>D</div><small>有能无力<br>Efficient but Visionless</small>
+        {% if result.quadrant_key=='D' %}<div class="dot bg-warning"></div>{% endif %}
+    </div>
+    <div class="quadrant-cell bg-success-subtle {% if result.quadrant_key=='C' %}active{% endif %}">
+        <div>C</div><small>有能有愿<br>Ideal Candidate</small>
+        {% if result.quadrant_key=='C' %}<div class="dot bg-success"></div>{% endif %}
+    </div>
+    <div class="quadrant-cell bg-danger-subtle {% if result.quadrant_key=='A' %}active{% endif %}">
+        <div>A</div><small>有愿无能<br>Eager but Weak</small>
+        {% if result.quadrant_key=='A' %}<div class="dot bg-danger"></div>{% endif %}
+    </div>
+    <div class="quadrant-cell bg-secondary-subtle {% if result.quadrant_key=='B' %}active{% endif %}">
+        <div>B</div><small>无愿无能<br>Survival Mode</small>
+        {% if result.quadrant_key=='B' %}<div class="dot bg-secondary"></div>{% endif %}
+    </div>
+</div>
+<div class="mt-2 p-2 rounded" style="background:#f0f8ff">
+    <small><strong>{{ result.quadrant_label }}</strong><br>{{ result.quadrant_focus }}：{{ result.quadrant_advice[:80] }}...</small>
+</div>
+</div></div>
+</div></div>
+
+<!-- 四维度分项分析 Dimension Analysis -->
+<div class="card mb-4"><div class="card-header">📐 维度分析 <small>Dimension Analysis</small></div><div class="card-body">
+<div class="row">
+{% for dim in [1,2,3,4] %}
+{% set da = result.dim_analysis[dim] %}
+<div class="col-md-6 mb-3">
+<div class="p-3 rounded border {% if da.level=='strong' %}border-success bg-success-subtle{% elif da.level=='weak' %}border-danger bg-danger-subtle{% else %}border-info bg-info-subtle{% endif %}">
+    <div class="d-flex justify-content-between"><strong>{{ da.cn }}</strong><span class="badge bg-{{ 'success' if da.level=='strong' else 'danger' if da.level=='weak' else 'info' }} fs-6">{{ da.avg }}分</span></div>
+    <small class="text-muted">{{ da.en }}</small>
+    <p class="mb-0 mt-1"><small>{{ da.comment }}</small></p>
+    {% if da.lowest and da.lowest.score <= 3 %}
+    <small class="text-danger">⚠ 待改善：Q{{ da.lowest.no }}（{{ da.lowest.score }}分）</small>
+    {% endif %}
+</div>
+</div>
+{% endfor %}
+</div></div></div>
+
+<!-- 优势劣势分析 Strengths & Weaknesses -->
+<div class="row mb-4">
+<div class="col-md-6">
+<div class="card h-100 border-success">
+    <div class="card-header bg-success text-white">🏆 优势项 <small>Strengths</small></div>
+    <div class="card-body">
+    {% set s9 = result.score_9_items %}
+    {% set s6 = result.score_6_items %}
+    {% if s9 %}
+    <h6 class="text-success">核心优势 Core (9分)</h6>
+    <ul class="list-group list-group-flush mb-2">{% for s in s9 %}<li class="list-group-item py-1">Q{{ s.no }} {{ s.text[:30] }}…</li>{% endfor %}</ul>
+    {% endif %}
+    {% if s6 %}
+    <h6 class="text-info">相对优势 Relative (6分)</h6>
+    <ul class="list-group list-group-flush">{% for s in s6 %}<li class="list-group-item py-1">Q{{ s.no }} {{ s.text[:30] }}…</li>{% endfor %}</ul>
+    {% endif %}
+    {% if not s9 and not s6 %}<p class="text-muted mb-0"><small>暂无高评分项，可在咨询辅导中进一步挖掘</small></p>{% endif %}
+    </div>
+</div>
+</div>
+<div class="col-md-6">
+<div class="card h-100 border-danger">
+    <div class="card-header bg-danger text-white">⚠️ 待改善项 <small>Improvements</small></div>
+    <div class="card-body">
+    {% set w1 = result.score_1_items %}
+    {% set w3 = result.score_3_items %}
+    {% if w1 %}
+    <h6 class="text-danger">紧急短板 Critical (1分)</h6>
+    <ul class="list-group list-group-flush mb-2">{% for w in w1 %}<li class="list-group-item py-1">Q{{ w.no }} {{ w.text[:30] }}…</li>{% endfor %}</ul>
+    {% endif %}
+    {% if w3 %}
+    <h6 class="text-warning">待改善 Needs Work (3分)</h6>
+    <ul class="list-group list-group-flush">{% for w in w3 %}<li class="list-group-item py-1">Q{{ w.no }} {{ w.text[:30] }}…</li>{% endfor %}</ul>
+    {% endif %}
+    {% if not w1 and not w3 %}<p class="text-muted mb-0"><small>暂无低分项，继续保持！</small></p>{% endif %}
+    </div>
+</div>
+</div>
+</div>
+
+<!-- 内部对齐提示 -->
+{% if result.alignment_warnings %}
+<div class="card mb-4 border-warning"><div class="card-header bg-warning">🔍 内部对齐提示 <small>Alignment Notes</small></div><div class="card-body">
+{% for w in result.alignment_warnings %}<p class="mb-1">⚠ {{ w }}</p>{% endfor %}</div></div>{% endif %}
+
+<!-- 总结板块 Summary -->
+<div class="card mb-4 border-primary"><div class="card-header bg-primary text-white">📋 综合总结 <small>Summary & Roadmap</small></div><div class="card-body">
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="text-center p-3 rounded bg-light">
+            <small class="text-muted">综合得分 Overall Score</small>
+            <div class="display-6 fw-bold text-primary">{{ result.overall_score }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="text-center p-3 rounded bg-light">
+            <small class="text-muted">总体水平 Level</small>
+            <div class="fw-bold fs-5">{{ result.summary.overall_level }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="text-center p-3 rounded bg-light">
+            <small class="text-muted">战略定位 Quadrant</small>
+            <div class="fw-bold fs-5">{{ result.quadrant_label }}</div>
+        </div>
+    </div>
+</div>
+<p class="lead mb-3">{{ result.summary.overall_summary }}</p>
+
+<h6 class="mb-3">🗺 推荐实施路线图 Recommended Roadmap</h6>
+<div class="timeline">
+{% for step in result.summary.roadmap %}
+<div class="row mb-2">
+    <div class="col-md-3"><span class="badge bg-primary fs-6">{{ step.phase }}</span></div>
+    <div class="col-md-3"><strong>{{ step.title }}</strong></div>
+    <div class="col-md-6"><small>{{ step.action }}</small></div>
+</div>
+{% if not loop.last %}<hr class="my-1">{% endif %}
+{% endfor %}
+</div>
+</div></div>
+
+<div class="d-flex justify-content-between mb-4">
+<a href="/assess/history" class="btn btn-outline-secondary">← 返回列表</a>
+<button onclick="window.print()" class="btn btn-outline-primary">🖨 导出PDF</button>
+<a href="/workflow/dashboard?assessment_id={{ assessment.id }}" class="btn btn-primary">进入咨询师工作台 →</a>
+</div></div></div>
+
+<script>
+const ctx = document.getElementById('radarChart').getContext('2d');
+const scores = [{{ result.dim_avgs[1] }},{{ result.dim_avgs[2] }},{{ result.dim_avgs[3] }},{{ result.dim_avgs[4] }}];
+const dimLabels = [
+    {cn:'① 战略预备度', en:'Strategic Readiness'},
+    {cn:'② 领导力文化', en:'Leadership & Culture'},
+    {cn:'③ 流程管理', en:'Process & Capability'},
+    {cn:'④ 执行对齐', en:'Execution & Digital'},
+];
+new Chart(ctx, {
+    type:'radar',
+    data:{
+        labels: dimLabels.map(d=>d.cn),
+        datasets:[{
+            label:'{{ assessment.company_name }}',
+            data: scores,
+            backgroundColor:'rgba(54,162,235,0.12)',
+            borderColor:'rgba(54,162,235,0.6)',
+            pointBackgroundColor:'#1a73e8',
+            pointBorderColor:'#fff',
+            pointBorderWidth:2,
+            pointRadius:5,
+            pointHoverRadius:7,
+        }]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:true,
+        scales:{
+            r:{
+                min:0, max:9,
+                ticks:{stepSize:3, font:{size:10, weight:'bold'}, color:'#666', backdropColor:'transparent'},
+                pointLabels:{display:false}, // 用自定义标签代替
+                grid:{color:'rgba(0,0,0,0.08)'},
+                angleLines:{color:'rgba(0,0,0,0.08)'},
+            }
+        },
+        plugins:{
+            legend:{display:false},
+            tooltip:{enabled:true, callbacks:{label:function(ctx){return ctx.parsed.r+'分'}}},
+        },
+    },
+    plugins:[{
+        id:'customLabels',
+        afterDraw(chart){
+            const c = chart.ctx;
+            const meta = chart.getDatasetMeta(0);
+            const centerX = chart.chartArea.left + chart.chartArea.width/2;
+            const centerY = chart.chartArea.top + chart.chartArea.height/2;
+
+            // 画自定义维度标签（两行：CN + EN）
+            meta.data.forEach((el, i) => {
+                const pos = el.getCenterPoint();
+                const dx = pos.x - centerX;
+                const dy = pos.y - centerY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const nx = dx / dist;
+                const ny = dy / dist;
+                // 标签放在数据点之外
+                const labelDist = dist + 28;
+                const lx = centerX + nx * labelDist;
+                const ly = centerY + ny * labelDist;
+
+                // 中文行
+                c.font = 'bold 13px sans-serif';
+                c.textAlign = nx > 0.3 ? 'left' : nx < -0.3 ? 'right' : 'center';
+                c.textBaseline = ny > 0.3 ? 'top' : ny < -0.3 ? 'bottom' : 'middle';
+                c.fillStyle = '#222';
+                c.fillText(dimLabels[i].cn, lx, ly - 9);
+
+                // 英文行
+                c.font = '10px sans-serif';
+                c.fillStyle = '#666';
+                c.fillText(dimLabels[i].en, lx, ly + 8);
+            });
+
+            // 画分数标签（数据点中心，白底蓝框）
+            meta.data.forEach((el, j) => {
+                const score = scores[j];
+                const pos = el.getCenterPoint();
+                const txt = score + '分';
+                c.font = 'bold 14px sans-serif';
+                const tw = c.measureText(txt).width;
+                c.fillStyle = 'rgba(255,255,255,0.9)';
+                c.beginPath();
+                c.roundRect(pos.x - tw/2 - 6, pos.y - 11, tw + 12, 22, 6);
+                c.fill();
+                c.strokeStyle = '#1a73e8';
+                c.lineWidth = 1.5;
+                c.stroke();
+                c.fillStyle = '#1a73e8';
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.fillText(txt, pos.x, pos.y);
+            });
+        }
+    }]
+});
+</script>
+{% endblock %}
