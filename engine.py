@@ -58,6 +58,21 @@ class AssessmentEngine:
             qk = "D"
         qi = QUADRANT_ADVICE[qk]
 
+        # 渴望度/能力值诊断一句话
+        if desire_avg >= 6:
+            desire_diagnosis = "企业有强烈的变革意愿和清晰的方向感"
+        elif desire_avg >= 3:
+            desire_diagnosis = "企业有改善意愿但尚未形成统一共识"
+        else:
+            desire_diagnosis = "企业当前缺乏变革动力，需要外部刺激唤醒意识"
+
+        if capacity_avg >= 6:
+            capacity_diagnosis = "组织已具备支撑战略落地的体系化能力"
+        elif capacity_avg >= 3:
+            capacity_diagnosis = "组织有一定基础但系统性和执行力度有待加强"
+        else:
+            capacity_diagnosis = "组织能力薄弱，需要从基础管理开始夯实内功"
+
         # 优势：按梯队
         score_9 = [{"no": i.question_no, "text": i.question_text, "score": i.score, "dim": i.dimension} for i in items if i.score == 9]
         score_6 = [{"no": i.question_no, "text": i.question_text, "score": i.score, "dim": i.dimension} for i in items if i.score == 6]
@@ -79,12 +94,20 @@ class AssessmentEngine:
             else:
                 comment = f"{cn_name}方面是当前主要短板，建议作为方针导入的首批改善对象"
                 level = "weak"
-            # 维度内最低分项
+            # 维度内优势：优先9分，无则取6分（最多3条）
             dim_items = [i for i in items if i.dimension == dim]
-            min_item = min(dim_items, key=lambda x: x.score) if dim_items else None
+            dim_strong = sorted([i for i in dim_items if i.score == 9], key=lambda x: x.question_no)
+            if not dim_strong:
+                dim_strong = sorted([i for i in dim_items if i.score == 6], key=lambda x: x.question_no)[:3]
+            # 维度内劣势：优先1分，无则取3分（最多3条）
+            dim_weak = sorted([i for i in dim_items if i.score == 1], key=lambda x: x.question_no)
+            if not dim_weak:
+                dim_weak = sorted([i for i in dim_items if i.score == 3], key=lambda x: x.question_no)[:3]
+
             dim_analysis[dim] = {
                 "cn": cn_name, "en": en_name, "avg": avg, "level": level, "comment": comment,
-                "lowest": {"no": min_item.question_no, "text": min_item.question_text, "score": min_item.score} if min_item else None,
+                "strong": [{"no": i.question_no, "text": i.question_text, "score": i.score} for i in dim_strong],
+                "weak": [{"no": i.question_no, "text": i.question_text, "score": i.score} for i in dim_weak],
             }
 
         warnings = []
@@ -108,43 +131,60 @@ class AssessmentEngine:
             overall_level = "初级阶段 (Initial)"
             overall_summary = "企业方针管理体系建设尚处早期，建议从基础管理工作入手，逐步建立标准化、可视化和目标对齐机制。"
 
-        # 推荐路线周期（按象限）
+        # 推荐路线周期：短期版（6-12月）+ 长期版（3-5年）
         weak_dims = sorted([(dim_avgs[d], d) for d in dim_avgs if dim_avgs[d] <= 3])
         strong_dims = sorted([(dim_avgs[d], d) for d in dim_avgs if dim_avgs[d] >= 6])
 
         if qk == "C":
-            roadmap = [
-                {"phase": "第1-3个月", "title": "体系导入", "action": "建立年度方针管理循环（Annual Cycle），搭建X-Matrix战略矩阵"},
-                {"phase": "第3-6个月", "title": "Catchball对齐", "action": "实施双向目标协商机制，确保各层级目标对齐"},
-                {"phase": "第6-12个月", "title": "月度评审与改善", "action": "建立月度方针评审机制，A3报告驱动问题解决"},
-                {"phase": "第12个月+", "title": "持续优化", "action": "回顾年度目标，启动下一轮方针管理循环"},
+            short_term = [
+                {"phase": "第1-3月", "title": "体系导入", "action": "建立X-Matrix战略矩阵与年度方针循环"},
+                {"phase": "第3-6月", "title": "目标对齐", "action": "实施Catchball双向协商，对齐各层级目标"},
+                {"phase": "第6-12月", "title": "月度评审", "action": "建立月度方针评审机制，A3驱动问题解决"},
+            ]
+            long_term = [
+                {"phase": "第1年", "title": "夯实体系", "action": "完整运行一轮方针管理年度循环，培养PDCA文化"},
+                {"phase": "第2-3年", "title": "深化融合", "action": "将方针管理融入日常管理，建立战略与执行的无缝衔接"},
+                {"phase": "第3-5年", "title": "自主进化", "action": "组织具备自我诊断与持续进化能力，形成学习型组织"},
             ]
         elif qk == "A":
-            roadmap = [
-                {"phase": "第1-2个月", "title": "统一管理层共识", "action": "建立管理团队定期沟通平台，对齐管理语言和方法论"},
-                {"phase": "第2-4个月", "title": "低垂果实试点", "action": "选择1-2个跨职能挑战作为试点，3个月内拿到可见成果"},
-                {"phase": "第4-8个月", "title": "建机制立标准", "action": "导入标准化作业、可视化管理、每日晨会等基础管理工具"},
-                {"phase": "第8-12个月", "title": "扩展至方针管理", "action": "在基础管理成型后，逐步导入完整的方针管理循环"},
+            short_term = [
+                {"phase": "第1-2月", "title": "统一共识", "action": "建立管理团队定期沟通平台，对齐管理语言"},
+                {"phase": "第2-4月", "title": "速赢试点", "action": "选择1-2个跨职能挑战，3个月内拿到可见成果"},
+                {"phase": "第4-12月", "title": "建机制", "action": "导入标准化作业、可视化管理、每日晨会等基础工具"},
+            ]
+            long_term = [
+                {"phase": "第1年", "title": "打地基", "action": "建立基础管理秩序，培养改善习惯和问题解决能力"},
+                {"phase": "第2-3年", "title": "系统导入", "action": "在基础管理成型后，逐步导入方针管理完整循环"},
+                {"phase": "第3-5年", "title": "文化沉淀", "action": "从工具驱动转向文化驱动，全员具备持续改善意识"},
             ]
         elif qk == "B":
-            roadmap = [
-                {"phase": "第1个月", "title": "生存优先", "action": "聚焦当前最紧迫的业务痛点，用精益工具快速改善"},
-                {"phase": "第2-4个月", "title": "建立信心", "action": "选择1个小范围改进项目，用数据证明改善效果"},
-                {"phase": "第5-8个月", "title": "培养改善文化", "action": "通过TWI培训培养一线管理者的问题解决能力"},
-                {"phase": "第9-12个月", "title": "策略导入准备", "action": "在改善文化初步成型后，引入战略规划意识"},
+            short_term = [
+                {"phase": "第1月", "title": "生存优先", "action": "聚焦最紧迫的业务痛点，用精益工具快速改善"},
+                {"phase": "第2-4月", "title": "建立信心", "action": "选1个小范围改进，用数据证明改善效果"},
+                {"phase": "第5-12月", "title": "培养能力", "action": "通过TWI培训培养一线管理者的改善能力"},
+            ]
+            long_term = [
+                {"phase": "第1年", "title": "活下来", "action": "稳定运营，建立基本的管理秩序和改善信心"},
+                {"phase": "第2-3年", "title": "站起来", "action": "从生存模式转向发展模式，建立标准化管理基础"},
+                {"phase": "第3-5年", "title": "跑起来", "action": "导入策略规划意识，逐步迈向方针管理"},
             ]
         else:  # D
-            roadmap = [
-                {"phase": "第1-2个月", "title": "战略扫描", "action": "引入Porter五力等战略分析工具，识别外部风险与机遇"},
-                {"phase": "第3-5个月", "title": "愿景共识", "action": "组织管理层战略研讨会，重新梳理愿景使命和突破性目标"},
-                {"phase": "第6-9个月", "title": "策略部署", "action": "将新战略通过方针管理流程分解到各执行层级"},
-                {"phase": "第10-12个月", "title": "对齐执行", "action": "建立Catchball机制和月度评审，确保战略落地"},
+            short_term = [
+                {"phase": "第1-2月", "title": "战略扫描", "action": "引入Porter五力等工具，识别外部风险与机遇"},
+                {"phase": "第3-5月", "title": "愿景共识", "action": "组织战略研讨会，重新梳理使命与突破性目标"},
+                {"phase": "第6-12月", "title": "策略部署", "action": "将新战略分解到各执行层级，建立评审机制"},
+            ]
+            long_term = [
+                {"phase": "第1年", "title": "定方向", "action": "建立清晰的战略规划流程和年度目标分解机制"},
+                {"phase": "第2-3年", "title": "建体系", "action": "将战略管理与日常运营深度整合，建立持续改进文化"},
+                {"phase": "第3-5年", "title": "扩影响", "action": "战略执行力成为组织核心竞争力，驱动行业影响力提升"},
             ]
 
         summary = {
             "overall_level": overall_level,
             "overall_summary": overall_summary,
-            "roadmap": roadmap,
+            "short_term_roadmap": short_term,
+            "long_term_roadmap": long_term,
             "weak_dim_count": len(weak_dims),
             "strong_dim_count": len(strong_dims),
         }
@@ -153,7 +193,9 @@ class AssessmentEngine:
             "dim_avgs": dim_avgs,
             "dim_analysis": dim_analysis,
             "desire_score": desire_avg,
+            "desire_diagnosis": desire_diagnosis,
             "capacity_score": capacity_avg,
+            "capacity_diagnosis": capacity_diagnosis,
             "quadrant_key": qk,
             "quadrant_label": qi["label"],
             "quadrant_advice": qi["advice"],

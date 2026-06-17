@@ -3,17 +3,67 @@
 {% block content %}
 <div class="row justify-content-center">
 <div class="col-lg-8">
+
+<!-- 评估开场引导 -->
+<div class="card mb-4">
+<div class="card-body" style="background:#F0F6FF;border:1px solid #D6E4F0;border-radius:8px;">
+    <h5 style="color:#002B5E;">📋 关于本次评估</h5>
+    <p style="font-size:0.9rem;color:#333;margin-bottom:8px;">
+        方针管理（Hoshin Kanri）导入预备度评估，旨在帮助企业诊断当前管理水平与方针管理要求之间的差距。
+    </p>
+    <div style="font-size:0.85rem;color:#555;margin-bottom:8px;">
+        <span style="display:inline-block;margin-right:16px;">⏱ 时长：约15-20分钟</span>
+        <span style="display:inline-block;margin-right:16px;">📝 题量：30题</span>
+        <span style="display:inline-block;">⭐ 评分：四档（1分/3分/6分/9分）</span>
+    </div>
+    <p style="font-size:0.85rem;color:#555;margin-bottom:6px;">
+        评估方式：通过30道问题，从<strong>战略预备度 · 领导力文化 · 流程管理 · 执行对齐</strong>
+        四个维度对企业进行打分。每题四档评分，从1分（初始级）到9分（优化级）。
+    </p>
+    <p style="font-size:0.85rem;color:#555;margin-bottom:0;">
+        评估产出：自动生成完整报告，包含雷达图、四象限定位、维度分析、
+        优劣势梳理及定制化实施路线图。
+    </p>
+    <hr style="border-color:#D6E4F0;margin:10px 0;">
+    <p style="font-size:0.85rem;color:#002B5E;margin-bottom:0;font-weight:500;">
+        → 请先填写企业基本信息，然后进入评分环节
+    </p>
+</div>
+</div>
+
 <div class="card"><div class="card-header bg-primary text-white">第一步：企业基本信息</div><div class="card-body">
 <form method="post" action="/assess/new">
-<div class="row mb-3"><div class="col-md-6"><label class="form-label">企业名称</label><input type="text" name="company_name" class="form-control" required></div>
-<div class="col-md-6"><label class="form-label">所属行业</label><select name="industry" class="form-select"><option>制造业</option><option>精密制造</option><option>电子制造</option><option>机械制造</option><option>化工</option><option>其他</option></select></div></div>
-<div class="row mb-3"><div class="col-md-3"><label class="form-label">成立年份</label><input type="number" name="year_established" class="form-control" placeholder="如2010"></div>
-<div class="col-md-3"><label class="form-label">年销售额(万元)</label><input type="number" name="annual_revenue" class="form-control" step="0.1"></div>
-<div class="col-md-3"><label class="form-label">员工总数</label><input type="number" name="employee_count" class="form-control"></div>
-<div class="col-md-3"><label class="form-label">管理人员数</label><input type="number" name="manager_count" class="form-control"></div></div>
-<div class="mb-3"><label class="form-label">企业愿景</label><textarea name="company_vision" class="form-control" rows="2" placeholder="如：成为行业精益智造标杆"></textarea></div>
-<div class="mb-3"><label class="form-label">企业使命</label><textarea name="company_mission" class="form-control" rows="2" placeholder="如：用精益管理为客户创造价值"></textarea></div>
-<div class="mb-3"><label class="form-label">评估人</label><input type="text" name="assessor" class="form-control"></div>
+<div class="row mb-3"><div class="col-md-6"><label class="form-label">企业名称 <span style="color:red;">*</span></label><input type="text" name="company_name" class="form-control" required></div>
+<div class="col-md-6"><label class="form-label">所属行业 <span style="color:red;">*</span></label><select name="industry" class="form-select" required><option value="">请选择</option>
+<optgroup label="汽车与交通">
+<option>汽车制造</option><option>汽车零部件</option><option>航空航天</option><option>轨道交通</option><option>船舶制造</option>
+</optgroup>
+<optgroup label="电子与电气">
+<option>电子制造</option><option>半导体/芯片</option><option>电气设备</option><option>通信设备</option><option>消费电子</option>
+</optgroup>
+<optgroup label="机械与装备">
+<option>机械制造</option><option>精密制造</option><option>工业自动化</option><option>机器人</option><option>工程机械</option>
+</optgroup>
+<optgroup label="生命科学与医疗">
+<option>医疗器械</option><option>制药</option><option>生物科技</option>
+</optgroup>
+<optgroup label="材料与化工">
+<option>化工</option><option>新材料</option><option>塑料/橡胶</option><option>钢铁/冶金</option>
+</optgroup>
+<optgroup label="食品与消费品">
+<option>食品加工</option><option>饮料/酿酒</option><option>日化/快消</option>
+</optgroup>
+<optgroup label="其他制造">
+<option>纺织/服装</option><option>印刷/包装</option><option>建材/家居</option><option>其他制造业</option>
+</optgroup>
+</select></div></div>
+<div class="row mb-3"><div class="col-md-3"><label class="form-label">成立年份 <span style="color:red;">*</span></label><input type="number" name="year_established" class="form-control" placeholder="如2010" required></div>
+<div class="col-md-3"><label class="form-label">年销售额(万元) <span style="color:red;">*</span></label><input type="number" name="annual_revenue" class="form-control" step="0.1" required></div>
+<div class="col-md-3"><label class="form-label">员工总数 <span style="color:red;">*</span></label><input type="number" name="employee_count" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label">管理人员数 <span style="color:red;">*</span></label><input type="number" name="manager_count" class="form-control" required></div></div>
+<div class="mb-3"><label class="form-label">企业愿景 <span style="color:red;">*</span></label><textarea name="company_vision" class="form-control" rows="2" placeholder="如：成为行业精益智造标杆" required></textarea></div>
+<div class="mb-3"><label class="form-label">企业使命 <span style="color:red;">*</span></label><textarea name="company_mission" class="form-control" rows="2" placeholder="如：用精益管理为客户创造价值" required></textarea></div>
+<div class="mb-3"><label class="form-label">评估人 <span style="color:red;">*</span></label><input type="text" name="assessor" class="form-control" required></div>
 <button type="submit" class="btn btn-primary btn-lg">下一步：开始评估 →</button>
 </form></div></div></div></div>
 {% endblock %}

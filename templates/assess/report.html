@@ -2,13 +2,36 @@
 {% block title %}评估报告 - {{ assessment.company_name }}{% endblock %}
 {% block content %}
 <style>
-.quadrant-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; max-width:360px; margin:0 auto; }
-.quadrant-cell { padding:10px; border-radius:8px; text-align:center; font-size:0.85rem; border:3px solid transparent; }
-.quadrant-cell.active { border-color:#333; box-shadow:0 0 12px rgba(0,0,0,0.15); font-weight:700; }
-.quadrant-cell .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:4px; }
+.quadrant-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; max-width:320px; margin:0 auto; }
+.quadrant-cell { padding:14px 8px; border-radius:8px; text-align:center; font-size:0.82rem; border:2px solid transparent; min-height:75px; display:flex; flex-direction:column; justify-content:center; }
+.quadrant-cell.active { border-color:#0052FF; background:#E8F0FE !important; box-shadow:0 0 10px rgba(0,82,255,0.2); font-weight:700; }
+.quadrant-cell small { line-height:1.35; display:block; }
+@media screen and (min-width:1200px) {
+    .container { max-width:1320px !important; }
+}
+@media print {
+    .container { max-width:100% !important; width:100% !important; padding:0 20px !important; }
+    .col-lg-10 { width:100% !important; max-width:100% !important; flex:0 0 100% !important; }
+    .col-md-7, .col-md-5, .col-md-6 { width:100% !important; max-width:100% !important; flex:0 0 100% !important; }
+    .card { break-inside:avoid; page-break-inside:avoid; box-shadow:none !important; border:1px solid #ddd !important; }
+    .navbar, .btn, .progress { display:none !important; }
+    body { background:white !important; font-size:11px; padding:0 !important; }
+    .radar-container { max-width:350px !important; }
+}
 </style>
 
-<div class="row"><div class="col-lg-8 mx-auto">
+<div class="row"><div class="col-lg-10 mx-auto">
+
+<!-- 报告标题与开场 -->
+<div class="mb-4">
+    <h3 style="color:#002B5E;">方针管理导入预备度评估报告</h3>
+    <p style="color:#555;font-size:0.9rem;margin-top:4px;">
+        本报告基于30题四维评估模型，对企业的方针管理（Hoshin Kanri）导入预备度进行全面诊断。
+        通过分析战略预备度、领导力文化、流程管理能力、执行对齐基础四个维度，
+        定位企业所处象限（A/B/C/D），并提供定制化实施建议和路线图。
+    </p>
+    <hr style="border-color:#E0E0E0;">
+</div>
 
 <!-- 企业档案 Company Profile -->
 <div class="card mb-4"><div class="card-header bg-primary text-white">📋 企业档案 <small>Company Profile</small></div><div class="card-body">
@@ -24,88 +47,61 @@
 <div class="card h-100"><div class="card-header">📊 四维度评估 <small>Radar Chart</small></div><div class="card-body"><div class="radar-container"><canvas id="radarChart"></canvas></div></div></div>
 </div><div class="col-md-5">
 <div class="card h-100"><div class="card-header">🎯 四象限定位 <small>Strategic Quadrant</small></div><div class="card-body">
-<div class="text-center mb-2"><small>渴望度 Desire: <strong>{{ result.desire_score }}</strong> ／ 能力值 Capacity: <strong>{{ result.capacity_score }}</strong></small></div>
+<div class="text-center mb-2 py-1 rounded" style="background:#F0F6FF;font-size:0.9rem;font-weight:600;">
+    渴望度 Desire: <strong style="color:#0052FF;">{{ result.desire_score }}分</strong>
+    ／ 能力值 Capability: <strong style="color:#0052FF;">{{ result.capacity_score }}分</strong>
+</div>
+<div class="text-center mb-2" style="font-size:0.7rem;color:#999;">
+    渴望度 = avg(Q1-Q4, Q9-Q12) ｜ 能力值 = avg(Q5-Q8, Q13-Q30)
+</div>
 <div class="quadrant-grid">
-    <div class="quadrant-cell bg-warning-subtle {% if result.quadrant_key=='D' %}active{% endif %}">
-        <div>D</div><small>有能无力<br>Efficient but Visionless</small>
-        {% if result.quadrant_key=='D' %}<div class="dot bg-warning"></div>{% endif %}
+    <div class="quadrant-cell" style="background:#FFF8E7;color:#333;{% if result.quadrant_key=='D' %}border-color:#E65100;background:#FFF3E0;font-weight:700;{% endif %}">
+        <strong style="font-size:1.2rem;">D</strong><br><small>有能无力<br>Efficient but Visionless</small>
     </div>
-    <div class="quadrant-cell bg-success-subtle {% if result.quadrant_key=='C' %}active{% endif %}">
-        <div>C</div><small>有能有愿<br>Ideal Candidate</small>
-        {% if result.quadrant_key=='C' %}<div class="dot bg-success"></div>{% endif %}
+    <div class="quadrant-cell" style="background:#E8F5E9;color:#333;{% if result.quadrant_key=='C' %}border-color:#2E7D32;background:#C8E6C9;font-weight:700;{% endif %}">
+        <strong style="font-size:1.2rem;">C</strong><br><small>有能有愿<br>Ideal Candidate</small>
     </div>
-    <div class="quadrant-cell bg-danger-subtle {% if result.quadrant_key=='A' %}active{% endif %}">
-        <div>A</div><small>有愿无能<br>Eager but Weak</small>
-        {% if result.quadrant_key=='A' %}<div class="dot bg-danger"></div>{% endif %}
+    <div class="quadrant-cell" style="background:#FFEBEE;color:#333;{% if result.quadrant_key=='A' %}border-color:#E53935;background:#FFCDD2;font-weight:700;{% endif %}">
+        <strong style="font-size:1.2rem;">A</strong><br><small>有愿无能<br>Eager but Weak</small>
     </div>
-    <div class="quadrant-cell bg-secondary-subtle {% if result.quadrant_key=='B' %}active{% endif %}">
-        <div>B</div><small>无愿无能<br>Survival Mode</small>
-        {% if result.quadrant_key=='B' %}<div class="dot bg-secondary"></div>{% endif %}
+    <div class="quadrant-cell" style="background:#F5F5F5;color:#333;{% if result.quadrant_key=='B' %}border-color:#666;background:#E0E0E0;font-weight:700;{% endif %}">
+        <strong style="font-size:1.2rem;">B</strong><br><small>无愿无能<br>Survival Mode</small>
     </div>
 </div>
-<div class="mt-2 p-2 rounded" style="background:#f0f8ff">
-    <small><strong>{{ result.quadrant_label }}</strong><br>{{ result.quadrant_focus }}：{{ result.quadrant_advice[:80] }}...</small>
+<div class="p-2 rounded" style="background:#F0F6FF;border:1px solid #D6E4F0;">
+    <small><strong style="color:#002B5E;font-size:0.95rem;">{{ result.quadrant_label }}</strong><br>
+    <strong>渴望度 Desire: {{ result.desire_score }}分</strong> — {{ result.desire_diagnosis }}<br>
+    <strong>能力值 Capability: {{ result.capacity_score }}分</strong> — {{ result.capacity_diagnosis }}</small>
+    <hr class="my-1">
+    <small><strong style="color:#002B5E;">改善方向：</strong>{{ result.quadrant_focus }} — {{ result.quadrant_advice[:80] }}</small>
+</div>
 </div>
 </div></div>
 </div></div>
 
-<!-- 四维度分项分析 Dimension Analysis -->
-<div class="card mb-4"><div class="card-header">📐 维度分析 <small>Dimension Analysis</small></div><div class="card-body">
+<!-- 四维度分项分析（含优劣势） Dimension Analysis -->
+<div class="card mb-4"><div class="card-header">📐 维度分析 <small>Dimension Analysis & Strengths/Weaknesses</small></div><div class="card-body">
 <div class="row">
 {% for dim in [1,2,3,4] %}
 {% set da = result.dim_analysis[dim] %}
 <div class="col-md-6 mb-3">
-<div class="p-3 rounded border {% if da.level=='strong' %}border-success bg-success-subtle{% elif da.level=='weak' %}border-danger bg-danger-subtle{% else %}border-info bg-info-subtle{% endif %}">
-    <div class="d-flex justify-content-between"><strong>{{ da.cn }}</strong><span class="badge bg-{{ 'success' if da.level=='strong' else 'danger' if da.level=='weak' else 'info' }} fs-6">{{ da.avg }}分</span></div>
+<div class="p-3 rounded border {% if da.level=='strong' %}border-success{% elif da.level=='weak' %}border-danger{% else %}border-info{% endif %}" style="{% if da.level=='strong' %}background:#F1F8E9{% elif da.level=='weak' %}background:#FFF5F5{% else %}background:#F0F8FF{% endif %}">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <strong style="color:#1A1A1A;">{{ da.cn }}</strong>
+        <span class="badge bg-{{ 'success' if da.level=='strong' else 'danger' if da.level=='weak' else 'info' }} fs-6">{{ da.avg }}分</span>
+    </div>
     <small class="text-muted">{{ da.en }}</small>
-    <p class="mb-0 mt-1"><small>{{ da.comment }}</small></p>
-    {% if da.lowest and da.lowest.score <= 3 %}
-    <small class="text-danger">⚠ 待改善：Q{{ da.lowest.no }}（{{ da.lowest.score }}分）</small>
+    <p class="mb-1 mt-1" style="color:#333;font-size:0.85rem;">{{ da.comment }}</p>
+    {% if da.strong %}
+    <div style="font-size:0.8rem;color:#2E7D32;">{% for s in da.strong[:3] %}✅ Q{{ s.no }} ({{ s.score }}分) {{ s.text }}{% if s.text|length > 30 %}..{% endif %}<br>{% endfor %}</div>
+    {% endif %}
+    {% if da.weak %}
+    <div style="font-size:0.8rem;color:#E53935;margin-top:2px;">{% for w in da.weak[:3] %}⚠️ Q{{ w.no }} ({{ w.score }}分) {{ w.text }}{% if w.text|length > 30 %}..{% endif %}<br>{% endfor %}</div>
     {% endif %}
 </div>
 </div>
 {% endfor %}
 </div></div></div>
-
-<!-- 优势劣势分析 Strengths & Weaknesses -->
-<div class="row mb-4">
-<div class="col-md-6">
-<div class="card h-100 border-success">
-    <div class="card-header bg-success text-white">🏆 优势项 <small>Strengths</small></div>
-    <div class="card-body">
-    {% set s9 = result.score_9_items %}
-    {% set s6 = result.score_6_items %}
-    {% if s9 %}
-    <h6 class="text-success">核心优势 Core (9分)</h6>
-    <ul class="list-group list-group-flush mb-2">{% for s in s9 %}<li class="list-group-item py-1">Q{{ s.no }} {{ s.text[:30] }}…</li>{% endfor %}</ul>
-    {% endif %}
-    {% if s6 %}
-    <h6 class="text-info">相对优势 Relative (6分)</h6>
-    <ul class="list-group list-group-flush">{% for s in s6 %}<li class="list-group-item py-1">Q{{ s.no }} {{ s.text[:30] }}…</li>{% endfor %}</ul>
-    {% endif %}
-    {% if not s9 and not s6 %}<p class="text-muted mb-0"><small>暂无高评分项，可在咨询辅导中进一步挖掘</small></p>{% endif %}
-    </div>
-</div>
-</div>
-<div class="col-md-6">
-<div class="card h-100 border-danger">
-    <div class="card-header bg-danger text-white">⚠️ 待改善项 <small>Improvements</small></div>
-    <div class="card-body">
-    {% set w1 = result.score_1_items %}
-    {% set w3 = result.score_3_items %}
-    {% if w1 %}
-    <h6 class="text-danger">紧急短板 Critical (1分)</h6>
-    <ul class="list-group list-group-flush mb-2">{% for w in w1 %}<li class="list-group-item py-1">Q{{ w.no }} {{ w.text[:30] }}…</li>{% endfor %}</ul>
-    {% endif %}
-    {% if w3 %}
-    <h6 class="text-warning">待改善 Needs Work (3分)</h6>
-    <ul class="list-group list-group-flush">{% for w in w3 %}<li class="list-group-item py-1">Q{{ w.no }} {{ w.text[:30] }}…</li>{% endfor %}</ul>
-    {% endif %}
-    {% if not w1 and not w3 %}<p class="text-muted mb-0"><small>暂无低分项，继续保持！</small></p>{% endif %}
-    </div>
-</div>
-</div>
-</div>
 
 <!-- 内部对齐提示 -->
 {% if result.alignment_warnings %}
@@ -136,16 +132,31 @@
 </div>
 <p class="lead mb-3">{{ result.summary.overall_summary }}</p>
 
-<h6 class="mb-3">🗺 推荐实施路线图 Recommended Roadmap</h6>
-<div class="timeline">
-{% for step in result.summary.roadmap %}
-<div class="row mb-2">
-    <div class="col-md-3"><span class="badge bg-primary fs-6">{{ step.phase }}</span></div>
-    <div class="col-md-3"><strong>{{ step.title }}</strong></div>
-    <div class="col-md-6"><small>{{ step.action }}</small></div>
+<div class="row">
+<div class="col-md-6">
+<div class="p-3 rounded border" style="background:#FFFDE7;">
+    <h6 class="mb-2" style="color:#E65100;">⚡ 短期路线 (6-12个月) <small style="font-weight:400;color:#666;">Short-term Quick Wins</small></h6>
+    {% for step in result.summary.short_term_roadmap %}
+    <div class="row mb-1" style="font-size:0.85rem;">
+        <div class="col-3"><span class="badge bg-warning text-dark">{{ step.phase }}</span></div>
+        <div class="col-3"><strong>{{ step.title }}</strong></div>
+        <div class="col-6"><small>{{ step.action[:40] }}…</small></div>
+    </div>
+    {% endfor %}
 </div>
-{% if not loop.last %}<hr class="my-1">{% endif %}
-{% endfor %}
+</div>
+<div class="col-md-6">
+<div class="p-3 rounded border" style="background:#E8EAF6;">
+    <h6 class="mb-2" style="color:#002B5E;">🏛 长期路线 (3-5年) <small style="font-weight:400;color:#666;">Long-term Transformation</small></h6>
+    {% for step in result.summary.long_term_roadmap %}
+    <div class="row mb-1" style="font-size:0.85rem;">
+        <div class="col-3"><span class="badge" style="background:#002B5E;color:white;">{{ step.phase }}</span></div>
+        <div class="col-3"><strong>{{ step.title }}</strong></div>
+        <div class="col-6"><small>{{ step.action[:40] }}…</small></div>
+    </div>
+    {% endfor %}
+</div>
+</div>
 </div>
 </div></div>
 
@@ -183,6 +194,7 @@ new Chart(ctx, {
     options:{
         responsive:true,
         maintainAspectRatio:true,
+        devicePixelRatio:2,
         scales:{
             r:{
                 min:0, max:9,

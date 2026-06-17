@@ -77,8 +77,7 @@ async def view_report(request: Request, assessment_id: int, db: Session = Depend
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).all()
     from engine import AssessmentEngine
     result = AssessmentEngine.calculate(items)
-    dim_names = {1:"战略预备度",2:"领导力文化",3:"流程管理",4:"执行对齐"}
-    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result, "dim_names": dim_names})
+    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result})
 
 @router.get("/history", response_class=HTMLResponse)
 async def assessment_history(request: Request, db: Session = Depends(get_db)):

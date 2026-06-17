@@ -2,12 +2,23 @@
 {% block title %}工作台 - {{ assessment.company_name }}{% endblock %}
 {% block content %}
 <div class="row"><div class="col-lg-10 mx-auto">
-<div class="card mb-4"><div class="card-header bg-primary text-white">🧑‍💼 咨询师工作台 — {{ assessment.company_name }}</div><div class="card-body">
+<div class="card mb-4"><div class="card-header bg-primary text-white">咨询师工作台 — {{ assessment.company_name }}</div><div class="card-body">
 <div class="progress mb-4" style="height:30px"><div class="progress-bar bg-success" style="width:25%">评估完成</div><div class="progress-bar bg-info" style="width:25%">策略分解</div><div class="progress-bar" style="width:25%">行动规划</div><div class="progress-bar bg-secondary" style="width:25%">追踪回顾</div></div>
-<h5 class="mb-3">🎯 重点改善建议</h5>
-<div class="list-group mb-4">{% for w in result.weak_items[:5] %}<div class="list-group-item d-flex justify-content-between align-items-center"><div><strong>Q{{ w.no }}</strong> {{ w.text }}</div><span class="badge bg-danger rounded-pill">{{ w.score }}分</span></div>{% endfor %}</div>
-<h5>📊 定位: {{ result.quadrant_label }}</h5>
+<h5 class="mb-3">重点改善建议</h5>
+{% set s1 = result.score_1_items %}
+{% set s3 = result.score_3_items %}
+{% set all_weak = s1 + s3 %}
+{% if all_weak|length > 0 %}
+<div class="list-group mb-4">
+{% for w in all_weak[:5] %}
+<div class="list-group-item d-flex justify-content-between align-items-center"><div><strong>Q{{ w.no }}</strong> {{ w.text[:40] }}...</div><span class="badge bg-danger rounded-pill">{{ w.score }}分</span></div>
+{% endfor %}
+</div>
+{% else %}
+<p class="text-muted mb-4">暂无待改善项，继续保持！</p>
+{% endif %}
+<h5>定位: {{ result.quadrant_label }}</h5>
 <div class="alert alert-success">{{ result.quadrant_advice }}</div>
-<a href="/assess/report/{{ assessment.id }}" class="btn btn-outline-secondary">← 返回报告</a>
+<a href="/assess/report/{{ assessment.id }}" class="btn btn-outline-secondary">返回报告</a>
 </div></div></div></div>
 {% endblock %}

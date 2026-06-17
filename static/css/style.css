@@ -1,5 +1,51 @@
-body { background: #f5f7fa; }
-.card { border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.card-header { border-radius: 12px 12px 0 0 !important; font-weight: 600; }
+/* === McKinsey 风格配色方案 === */
+:root {
+    --mck-blue: #0052FF;
+    --mck-dark: #002B5E;
+    --bs-primary: #0052FF;
+    --bs-primary-rgb: 0, 82, 255;
+    --mck-bg: #FAFAFA;
+    --mck-card-bg: #FFFFFF;
+    --mck-border: #E8E8E8;
+    --mck-text: #1A1A1A;
+    --mck-muted: #8C8C8C;
+    --mck-accent: #0030B3;
+}
+
+body { background: var(--mck-bg); font-family: 'Inter', 'Noto Sans SC', -apple-system, 'Segoe UI', sans-serif; color: var(--mck-text); }
+.card { border-radius: 8px; border: 1px solid var(--mck-border); box-shadow: none; background: var(--mck-card-bg); }
+.card-header { border-radius: 7px 7px 0 0 !important; font-weight: 600; font-family: 'Inter', 'Noto Sans SC', sans-serif; border-bottom: 1px solid var(--mck-border); }
+.card.border-danger { border-color: #E53935 !important; }
+.card.border-success { border-color: #2E7D32 !important; }
+.card.border-warning { border-color: #E65100 !important; }
+
+/* 导航栏 */
+.navbar { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+/* 卡片标题使用深蓝 */
+.card-header.bg-primary, [class*="card-header"][class*="bg-primary"] { background-color: var(--mck-dark) !important; }
+
+/* 按钮 */
+.btn-primary { background-color: var(--mck-blue); border-color: var(--mck-blue); }
+.btn-primary:hover { background-color: var(--mck-accent); border-color: var(--mck-accent); }
+.btn-outline-primary { color: var(--mck-blue); border-color: var(--mck-blue); }
+.btn-outline-primary:hover { background-color: var(--mck-blue); border-color: var(--mck-blue); }
+
+/* 徽章 */
+.badge.bg-primary { background-color: var(--mck-dark) !important; }
+.badge.bg-success { background-color: #2E7D32 !important; }
+.badge.bg-danger { background-color: #E53935 !important; }
+.badge.bg-warning { background-color: #E65100 !important; }
+.badge.bg-info { background-color: #0057A0 !important; }
+
+/* 提示框 */
+.alert-info { background-color: #E8F0FE; border-color: #C6DAFC; color: var(--mck-dark); }
+.alert-success { background-color: #E8F5E9; border-color: #C8E6C9; color: #1B5E20; }
+.alert-warning { background-color: #FFF3E0; border-color: #FFE0B2; color: #E65100; }
+
+/* 其他 */
 .score-btn-group .btn { min-width: 60px; }
 .radar-container { max-width: 500px; margin: 0 auto; }
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .navbar-brand, .btn, .badge, .display-6 { font-family: 'Inter', 'Noto Sans SC', sans-serif; font-weight: 600; letter-spacing: -0.01em; }
+.progress-bar.bg-success { background-color: #2E7D32 !important; }
+.progress-bar.bg-info { background-color: #0057A0 !important; }
