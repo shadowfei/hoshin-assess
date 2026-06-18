@@ -179,8 +179,8 @@
 <a href="/assess/history" class="btn btn-outline-secondary">← 返回列表</a>
 {% endif %}
 <button onclick="window.print()" class="btn btn-outline-primary">🖨 导出PDF</button>
-{% if not is_client %}
 <a href="/assess/score-detail/{{ assessment.id }}" class="btn btn-outline-info">📋 评分明细</a>
+{% if not is_client %}
 <a href="/workflow/dashboard?assessment_id={{ assessment.id }}" class="btn btn-primary">进入咨询师工作台 →</a>
 {% endif %}
 </div></div></div>
