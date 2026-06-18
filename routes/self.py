@@ -56,9 +56,19 @@ async def submit_survey(request: Request, assessment_id: int, db: Session = Depe
 @router.get("/{assessment_id}/result", response_class=HTMLResponse)
 async def client_result(request: Request, assessment_id: int, db: Session = Depends(get_db)):
     from rendering import render
+    from models import Attachment
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment: return HTMLResponse("评估不存在", status_code=404)
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).all()
     from engine import AssessmentEngine
     result = AssessmentEngine.calculate(items)
-    return await render("self/result.html", {"request": request, "assessment": assessment, "result": result})
+    # 查询附件
+    item_ids = [i.id for i in items]
+    attachments = db.query(Attachment).filter(Attachment.item_id.in_(item_ids)).all() if item_ids else []
+    attach_by_q = {}
+    for att in attachments:
+        for item in items:
+            if item.id == att.item_id:
+                attach_by_q.setdefault(item.question_no, []).append(att)
+                break
+    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result, "attachments": attach_by_q})
