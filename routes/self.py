@@ -71,4 +71,4 @@ async def client_result(request: Request, assessment_id: int, db: Session = Depe
             if item.id == att.item_id:
                 attach_by_q.setdefault(item.question_no, []).append(att)
                 break
-    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result, "attachments": attach_by_q})
+    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result, "attachments": attach_by_q, "is_client": True})
