@@ -84,3 +84,49 @@ async def assessment_history(request: Request, db: Session = Depends(get_db)):
     from rendering import render
     assessments = db.query(Assessment).order_by(Assessment.created_at.desc()).all()
     return await render("assess/history.html", {"request": request, "assessments": assessments})
+
+@router.get("/create-client", response_class=HTMLResponse)
+async def create_client_survey(request: Request):
+    from rendering import render
+    return await render("assess/create_client.html", {"request": request})
+
+@router.post("/create-client")
+async def do_create_client_survey(
+    request: Request,
+    company_name: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    assessment = Assessment(company_name=company_name, type="self")
+    db.add(assessment)
+    db.flush()
+    from questions_data import QUESTIONS
+    for dim in range(1,5):
+        start, end = {1:(1,8),2:(9,15),3:(16,23),4:(24,30)}[dim]
+        for qn in range(start, end+1):
+            qdata = QUESTIONS.get(qn, {})
+            db.add(AssessmentItem(
+                assessment_id=assessment.id, dimension=dim, question_no=qn,
+                question_text=qdata.get("text",""), reference_text=qdata.get("ref",""),
+            ))
+    db.commit()
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=f"/assess/client-done/{assessment.id}", status_code=303)
+
+@router.get("/client-done/{assessment_id}", response_class=HTMLResponse)
+async def client_survey_created(request: Request, assessment_id: int):
+    from rendering import render
+    from models import get_db
+    db = next(get_db())
+    assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
+    db.close()
+    return await render("assess/client_done.html", {"request": request, "assessment": assessment})
+
+@router.get("/score-detail/{assessment_id}", response_class=HTMLResponse)
+async def score_detail(request: Request, assessment_id: int, db: Session = Depends(get_db)):
+    from rendering import render
+    assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
+    if not assessment: return HTMLResponse("评估不存在", status_code=404)
+    items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).order_by(AssessmentItem.question_no).all()
+    dimensions = {}
+    for item in items: dimensions.setdefault(item.dimension, []).append(item)
+    return await render("assess/score_detail.html", {"request": request, "assessment": assessment, "dimensions": sorted(dimensions.items())})

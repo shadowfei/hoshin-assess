@@ -30,6 +30,18 @@ async def submit_survey(request: Request, assessment_id: int, db: Session = Depe
     if existing:
         return RedirectResponse(url=f"/self/{assessment_id}/result", status_code=303)
     form = await request.form()
+    # 保存企业信息
+    assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
+    if assessment:
+        assessment.industry = form.get("industry", "")
+        assessment.year_established = form.get("year_established", type=int) or None
+        assessment.employee_count = form.get("employee_count", type=int) or None
+        assessment.annual_revenue = form.get("annual_revenue", type=float) or None
+        assessment.manager_count = form.get("manager_count", type=int) or None
+        assessment.assessor = form.get("assessor", "")
+        assessment.company_vision = form.get("company_vision", "")
+        assessment.company_mission = form.get("company_mission", "")
+    # 保存评分
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).all()
     for item in items:
         k = f"score_{item.id}"

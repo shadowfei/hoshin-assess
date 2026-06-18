@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}问卷已生成{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-8">
+<div class="card border-success"><div class="card-header bg-success text-white">✅ 客户问卷已生成</div><div class="card-body text-center">
+<h5 class="mb-3">{{ assessment.company_name }}</h5>
+<div class="p-3 mb-3 rounded" style="background:#F0F6FF;border:1px solid #D6E4F0;">
+    <p class="mb-1" style="font-size:0.85rem;color:#666;">客户问卷链接（复制发送给客户）：</p>
+    <p class="mb-0" style="font-size:1.1rem;font-weight:600;color:#002B5E;word-break:break-all;" id="clientLink">
+        {{ request.url.scheme }}://{{ request.url.netloc }}/self/{{ assessment.id }}
+    </p>
+</div>
+<button class="btn btn-primary mb-3" onclick="navigator.clipboard.writeText(document.getElementById('clientLink').textContent.trim());alert('链接已复制！')">📋 复制链接</button>
+<p class="text-muted" style="font-size:0.85rem;">客户打开链接后填写企业信息 → 完成30题评分 → 自动提交<br>
+你可以在评估历史中查看客户的报告和评分明细。</p>
+<a href="/assess/history" class="btn btn-outline-secondary">← 返回评估历史</a>
+</div></div></div></div>
+{% endblock %}

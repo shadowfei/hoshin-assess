@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}生成客户问卷{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-lg-6">
+<div class="card"><div class="card-header bg-primary text-white">📤 生成客户问卷</div><div class="card-body">
+<p class="text-muted mb-3">输入客户企业名称，生成唯一问卷链接。将此链接发给客户，客户自行填写企业信息并完成30题评分。</p>
+<form method="post" action="/assess/create-client">
+<div class="mb-3"><label class="form-label">客户企业名称 <span style="color:red;">*</span></label>
+<input type="text" name="company_name" class="form-control" placeholder="如：大明精密制造" required></div>
+<button type="submit" class="btn btn-primary">生成问卷链接 →</button>
+</form>
+</div></div></div></div>
+{% endblock %}

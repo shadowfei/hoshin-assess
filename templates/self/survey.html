@@ -14,6 +14,25 @@
     <span class="badge bg-success">9分-优化级</span> 已融入文化
 </p>
 <form method="post" action="/self/{{ assessment.id }}">
+<!-- 企业信息填写 -->
+<div class="card mb-3"><div class="card-header bg-secondary text-white">企业基本信息 Company Info</div><div class="card-body">
+<div class="row mb-2"><div class="col-md-6"><label class="form-label">所属行业</label>
+<select name="industry" class="form-select"><option value="">请选择</option>
+<optgroup label="汽车与交通"><option>汽车制造</option><option>汽车零部件</option><option>航空航天</option><option>轨道交通</option></optgroup>
+<optgroup label="电子与电气"><option>电子制造</option><option>半导体/芯片</option><option>电气设备</option></optgroup>
+<optgroup label="机械与装备"><option>机械制造</option><option>精密制造</option><option>工业自动化</option></optgroup>
+<optgroup label="生命科学与医疗"><option>医疗器械</option><option>制药</option></optgroup>
+<optgroup label="材料与化工"><option>化工</option><option>新材料</option></optgroup>
+<optgroup label="其他"><option>其他制造业</option></optgroup>
+</select></div>
+<div class="col-md-3"><label class="form-label">成立年份</label><input type="number" name="year_established" class="form-control" placeholder="如2010"></div>
+<div class="col-md-3"><label class="form-label">员工总数</label><input type="number" name="employee_count" class="form-control" placeholder="人"></div></div>
+<div class="row mb-2"><div class="col-md-6"><label class="form-label">年销售额(万元)</label><input type="number" name="annual_revenue" class="form-control" step="0.1"></div>
+<div class="col-md-3"><label class="form-label">管理人员数</label><input type="number" name="manager_count" class="form-control"></div>
+<div class="col-md-3"><label class="form-label">评估人</label><input type="text" name="assessor" class="form-control" placeholder="姓名"></div></div>
+<div class="mb-1"><label class="form-label">企业愿景</label><textarea name="company_vision" class="form-control" rows="1" placeholder="如：成为行业精益智造标杆"></textarea></div>
+<div class="mb-0"><label class="form-label">企业使命</label><textarea name="company_mission" class="form-control" rows="1" placeholder="如：用精益管理为客户创造价值"></textarea></div>
+</div></div>
 {% set dim_cn = ["","一、战略预备度与外部环境","二、领导力与组织文化","三、流程管理与改善能力","四、执行、对齐与数字化基础"] %}
 {% set dim_en = ["","Strategic Readiness & External Environment","Leadership & Culture","Process & Improvement Capability","Execution, Alignment & Digital Foundation"] %}
 {% for dim, items in dimensions %}
