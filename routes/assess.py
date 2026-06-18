@@ -131,11 +131,11 @@ async def client_survey_created(request: Request, assessment_id: int):
     return await render("assess/client_done.html", {"request": request, "assessment": assessment})
 
 @router.get("/score-detail/{assessment_id}", response_class=HTMLResponse)
-async def score_detail(request: Request, assessment_id: int, db: Session = Depends(get_db)):
+async def score_detail(request: Request, assessment_id: int, from_client: str = None, db: Session = Depends(get_db)):
     from rendering import render
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment: return HTMLResponse("评估不存在", status_code=404)
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).order_by(AssessmentItem.question_no).all()
     dimensions = {}
     for item in items: dimensions.setdefault(item.dimension, []).append(item)
-    return await render("assess/score_detail.html", {"request": request, "assessment": assessment, "dimensions": sorted(dimensions.items())})
+    return await render("assess/score_detail.html", {"request": request, "assessment": assessment, "dimensions": sorted(dimensions.items()), "from_client": from_client})

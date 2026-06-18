@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}评分明细 - {{ assessment.company_name }}{% endblock %}
+{% block navbar %}{% endblock %}
 {% block content %}
 <div class="row justify-content-center"><div class="col-lg-10">
 <div class="card mb-4"><div class="card-header bg-primary text-white">📋 {{ assessment.company_name }} — 评分明细（只读）</div><div class="card-body">
@@ -20,6 +21,6 @@
 {% endfor %}
 </div></div>
 {% endfor %}
-<a href="/assess/report/{{ assessment.id }}" class="btn btn-primary">← 返回报告</a>
+<a href="{% if from_client %}/self/{{ assessment.id }}/result{% else %}/assess/report/{{ assessment.id }}{% endif %}" class="btn btn-primary">← 返回报告</a>
 </div></div></div></div>
 {% endblock %}
