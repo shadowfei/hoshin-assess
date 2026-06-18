@@ -10,6 +10,12 @@ async def client_survey(request: Request, assessment_id: int, db: Session = Depe
     from rendering import render
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if not assessment: return HTMLResponse("问卷链接无效", status_code=404)
+    # 已提交过则跳转到结果页，不可重复填写
+    existing = db.query(AssessmentItem).filter(
+        AssessmentItem.assessment_id == assessment_id, AssessmentItem.score > 0
+    ).first()
+    if existing:
+        return RedirectResponse(url=f"/self/{assessment_id}/result", status_code=303)
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).order_by(AssessmentItem.question_no).all()
     dimensions = {}
     for item in items: dimensions.setdefault(item.dimension, []).append(item)
@@ -17,6 +23,12 @@ async def client_survey(request: Request, assessment_id: int, db: Session = Depe
 
 @router.post("/{assessment_id}")
 async def submit_survey(request: Request, assessment_id: int, db: Session = Depends(get_db)):
+    # 防止重复提交
+    existing = db.query(AssessmentItem).filter(
+        AssessmentItem.assessment_id == assessment_id, AssessmentItem.score > 0
+    ).first()
+    if existing:
+        return RedirectResponse(url=f"/self/{assessment_id}/result", status_code=303)
     form = await request.form()
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).all()
     for item in items:
