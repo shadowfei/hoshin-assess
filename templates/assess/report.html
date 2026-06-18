@@ -164,6 +164,7 @@
 <a href="/assess/history" class="btn btn-outline-secondary">← 返回列表</a>
 <button onclick="window.print()" class="btn btn-outline-primary">🖨 导出PDF</button>
 <a href="/workflow/dashboard?assessment_id={{ assessment.id }}" class="btn btn-primary">进入咨询师工作台 →</a>
+<a href="/self/{{ assessment.id }}" class="btn btn-success" target="_blank" onclick="alert('客户问卷链接：' + window.location.origin + '/self/{{ assessment.id }}\n\n请复制此链接发给客户');return false;">📤 客户问卷链接</a>
 </div></div></div>
 
 <script>
