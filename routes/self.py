@@ -34,10 +34,14 @@ async def submit_survey(request: Request, assessment_id: int, db: Session = Depe
     assessment = db.query(Assessment).filter(Assessment.id == assessment_id).first()
     if assessment:
         assessment.industry = form.get("industry", "")
-        assessment.year_established = form.get("year_established", type=int) or None
-        assessment.employee_count = form.get("employee_count", type=int) or None
-        assessment.annual_revenue = form.get("annual_revenue", type=float) or None
-        assessment.manager_count = form.get("manager_count", type=int) or None
+        try: assessment.year_established = int(form["year_established"]) if form.get("year_established") else None
+        except: assessment.year_established = None
+        try: assessment.employee_count = int(form["employee_count"]) if form.get("employee_count") else None
+        except: assessment.employee_count = None
+        try: assessment.annual_revenue = float(form["annual_revenue"]) if form.get("annual_revenue") else None
+        except: assessment.annual_revenue = None
+        try: assessment.manager_count = int(form["manager_count"]) if form.get("manager_count") else None
+        except: assessment.manager_count = None
         assessment.assessor = form.get("assessor", "")
         assessment.company_vision = form.get("company_vision", "")
         assessment.company_mission = form.get("company_mission", "")
