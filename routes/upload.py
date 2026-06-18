@@ -29,3 +29,10 @@ async def upload_file(item_id: int = Form(...), file: UploadFile = File(...), db
 async def list_files(item_id: int, db: Session = Depends(get_db)):
     files = db.query(Attachment).filter(Attachment.item_id == item_id).all()
     return JSONResponse([{"id":f.id,"name":f.file_name,"size":f.file_size,"type":f.file_type} for f in files])
+
+@router.get("/download/{file_id}")
+async def download_file(file_id: int, db: Session = Depends(get_db)):
+    from fastapi.responses import FileResponse
+    file = db.query(Attachment).filter(Attachment.id == file_id).first()
+    if not file: return JSONResponse({"error":"文件不存在"}, status_code=404)
+    return FileResponse(file.file_path, filename=file.file_name)

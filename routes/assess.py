@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from models import get_db, Assessment, AssessmentItem
+from models import get_db, Assessment, AssessmentItem, Attachment
 
 router = APIRouter()
 
@@ -77,7 +77,16 @@ async def view_report(request: Request, assessment_id: int, db: Session = Depend
     items = db.query(AssessmentItem).filter(AssessmentItem.assessment_id == assessment_id).all()
     from engine import AssessmentEngine
     result = AssessmentEngine.calculate(items)
-    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result})
+    # 查询附件
+    item_ids = [i.id for i in items]
+    attachments = db.query(Attachment).filter(Attachment.item_id.in_(item_ids)).all() if item_ids else []
+    attach_by_q = {}
+    for att in attachments:
+        for item in items:
+            if item.id == att.item_id:
+                attach_by_q.setdefault(item.question_no, []).append(att)
+                break
+    return await render("assess/report.html", {"request": request, "assessment": assessment, "result": result, "attachments": attach_by_q})
 
 @router.get("/history", response_class=HTMLResponse)
 async def assessment_history(request: Request, db: Session = Depends(get_db)):

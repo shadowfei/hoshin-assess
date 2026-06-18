@@ -160,6 +160,19 @@
 </div>
 </div></div>
 
+<!-- 附件列表 -->
+{% if attachments %}
+<div class="card mb-4"><div class="card-header">📎 附件 <small>Attachments</small></div><div class="card-body">
+{% for q_no, files in attachments.items() %}
+<p class="mb-1"><strong>Q{{ q_no }}</strong>：
+{% for f in files %}
+<a href="/upload/download/{{ f.id }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1">📄 {{ f.file_name }}</a>
+{% endfor %}
+</p>
+{% endfor %}
+</div></div>
+{% endif %}
+
 <div class="d-flex justify-content-between mb-4">
 <a href="/assess/history" class="btn btn-outline-secondary">← 返回列表</a>
 <button onclick="window.print()" class="btn btn-outline-primary">🖨 导出PDF</button>
